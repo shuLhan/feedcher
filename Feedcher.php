@@ -8,7 +8,7 @@ include "autoload.php";
 use PicoFeed\Reader\Reader;
 use PicoFeed\Client\Grabber;
 
-class Feeder
+class Feedcher
 {
 	public $_db = null;
 	public $_reader = null;
@@ -174,6 +174,6 @@ class Feeder
 	}
 }
 
-$f = new Feeder ();
+$f = new Feedcher ();
 
 $f->run ();
