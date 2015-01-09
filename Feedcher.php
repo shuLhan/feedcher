@@ -18,9 +18,9 @@ class Feedcher
 
 	public function __construct ()
 	{
-			$this->_reader = new Reader ();
-			$this->_grabber = new Grabber ('');
-			$this->_max_try = 3;
+		$this->_reader = new Reader ();
+		$this->_grabber = new Grabber ('');
+		$this->_max_try = 3;
 	}
 
 	public function save ($feed_md, $resource, $feed)
