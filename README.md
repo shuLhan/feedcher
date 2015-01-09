@@ -3,7 +3,6 @@
 ## Requirements
 
 * php (latest version)
-* php phalcon module (latest version)
 
 ## Building
 
