@@ -1,3 +1,6 @@
 [submodule "./picoFeed"]
-	path = picoFeed
+	path = lib/picoFeed
 	url = git@github.com:shuLhan/picoFeed.git
+[submodule "lib/jaringphp"]
+	path = lib/jaringphp
+	url = /home/ms/Copy/Repository/jaringphp

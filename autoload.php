@@ -4,7 +4,8 @@
  */
 
 $classes_dir = array (
-	"picoFeed/lib/"
+	"lib/picoFeed/lib/"
+,	"lib/"
 );
 
 function class_autoload ($class_name)

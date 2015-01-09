@@ -7,6 +7,7 @@ include "autoload.php";
 
 use PicoFeed\Reader\Reader;
 use PicoFeed\Client\Grabber;
+use jaringphp\JaringDB;
 
 class Feedcher
 {
@@ -55,7 +56,7 @@ class Feedcher
 
 	public function grab_content (&$item)
 	{
-		echo ">> grab $item->url".PHP_EOL;
+		echo ">> grab content: $item->url".PHP_EOL;
 
 		$this->_grabber->setUrl ($item->url);
 		$this->_grabber->download ();
@@ -70,25 +71,32 @@ class Feedcher
 			." from feed_item "
 			." where id = ? and feed_id = ? ";
 
-		$rs = $this->_db->query ($q, array ($item->id, $feed_md["id"]));
+		$rs = $this->_db->execute ($q, array ($item->id, $feed_md["id"]));
 
-		$rs->setFetchMode (Phalcon\Db::FETCH_ASSOC);
-
-		$row = $rs->fetch ();
-
-		if (! $row) {
+		if ($rs == null) {
+			return;
+		}
+		if (count ($rs) == 0) {
 			return;
 		}
 
-		if ($row["num_items"] == 0) {
+		if ($rs[0]["num_items"] == 0) {
 			$this->grab_content ($item);
 
-			echo ">> save item : $item->url".PHP_EOL;
+			echo ">> save item   : $item->url".PHP_EOL;
 
-			$q = " insert into feed_item (id, feed_id, date, title, url, description, author, content )"
-				." values (?, ?, ?, ?, ?, ?, ?, ?)";
+			$q = " insert into feed_item
+					( id
+					, feed_id
+					, date
+					, title
+					, url
+					, description
+					, author
+					, content
+					) values (?, ?, ?, ?, ?, ?, ?, ?)";
 
-			$s = $this->_db->query ($q, array (
+			$s = $this->_db->execute ($q, array (
 						$item->id
 					,	$feed_md["id"]
 					,	$item->date
@@ -97,7 +105,8 @@ class Feedcher
 					,	$item->description
 					,	$item->author
 					,	$item->content
-					));
+					)
+					, false);
 		}
 	}
 
@@ -149,26 +158,28 @@ class Feedcher
 
 	public function run ()
 	{
-		$config = new Phalcon\Config\Adapter\Ini ("config.ini");
+		$config = parse_ini_file ("config.ini", true);
 
 		try {
-			if ($config->database->adapter == "sqlite") {
-				$this->_db = new Phalcon\Db\Adapter\Pdo\Sqlite ((array) $config->database);
-			}
+			$this->_db = new JaringDB ($config["database"]["url"]
+							, $config["database"]["username"]
+							, $config["database"]["password"]
+					);
 
 			if (null == $this->_db) {
 				throw new Execption ("Database is not set!");
 			}
 
-			$q = "select id, url, etag, last_mod, last_fetch from feed";
-			$rs = $this->_db->query ($q);
-			$rs->setFetchMode (Phalcon\Db::FETCH_ASSOC);
+			$this->_db->init ();
 
-			while ($feed_md = $rs->fetch ()) {
+			$q = "select id, url, etag, last_mod, last_fetch from feed";
+			$rs = $this->_db->execute ($q);
+
+			foreach ($rs as $feed_md) {
 				$this->fetch ($feed_md);
 			}
 		}
-		catch (Phalcon\Db\Exception $e) {
+		catch (Exception $e) {
 			echo $e;
 		}
 	}
