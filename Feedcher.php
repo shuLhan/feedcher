@@ -7,17 +7,18 @@ include "autoload.php";
 
 use PicoFeed\Reader\Reader;
 use PicoFeed\Client\Grabber;
-use jaringphp\JaringDB;
+use jaringphp\Jaring;
 
-class Feedcher
+class Feedcher extends Jaring
 {
-	public $_db = null;
 	public $_reader = null;
 	public $_grabber = null;
 	public $_max_try = 3;
 
-	public function __construct ()
+	public function __construct ($app_conf)
 	{
+		parent::__construct ($app_conf);
+
 		$this->_reader = new Reader ();
 		$this->_grabber = new Grabber ('');
 		$this->_max_try = 3;
@@ -158,19 +159,8 @@ class Feedcher
 
 	public function run ()
 	{
-		$config = parse_ini_file ("config.ini", true);
-
 		try {
-			$this->_db = new JaringDB ($config["database"]["url"]
-							, $config["database"]["username"]
-							, $config["database"]["password"]
-					);
-
-			if (null == $this->_db) {
-				throw new Execption ("Database is not set!");
-			}
-
-			$this->_db->init ();
+			$this->db_init ();
 
 			$q = "select id, url, etag, last_mod, last_fetch from feed";
 			$rs = $this->_db->execute ($q);
@@ -185,6 +175,6 @@ class Feedcher
 	}
 }
 
-$f = new Feedcher ();
+$feedcher = new Feedcher ($argv[1]);
 
-$f->run ();
+$feedcher->run ();
