@@ -5,11 +5,15 @@
 
 namespace jaringphp;
 
+use jaringphp\JaringDB;
+use jaringphp\JaringOut;
+
 class Jaring
 {
 	public $_config = NULL;
 	public $_path = NULL;
 	public $_db = NULL;
+	public $_out = NULL;
 
 	/**
 	 * Application path default to configuration file.
@@ -18,6 +22,7 @@ class Jaring
 	{
 		$this->load_config ($app_conf);
 		$this->load_path ($app_conf);
+		$this->_out = new JaringOut ();
 	}
 
 	public function load_config ($app_conf)
@@ -25,13 +30,13 @@ class Jaring
 		$str = file_get_contents ($app_conf);
 
 		if (FALSE === $str) {
-			throw new Exception ("jaring: load config failed!");
+			throw new \Exception ("jaring: load config failed!");
 		}
 
 		$this->_config = json_decode ($str);
 
 		if (! $this->_config) {
-			throw new Exception ("jaring: config decode failed!");
+			throw new \Exception ("jaring: config decode failed!");
 		}
 	}
 
@@ -40,7 +45,7 @@ class Jaring
 		$path = realpath ($app_conf);
 
 		if (! $path) {
-			throw new Exception ("jaring: can not get application path!");
+			throw new \Exception ("jaring: can not get application path!");
 		}
 
 		$this->_path = dirname ($path) ."/";
@@ -57,7 +62,7 @@ class Jaring
 				$dbname = substr ($dbname, 2);
 
 				if (FALSE === $dbname) {
-					throw new Exception ("jaring: substr error.");
+					throw new \Exception ("jaring: substr error.");
 				}
 
 				$dbname = $this->_path . $dbname;

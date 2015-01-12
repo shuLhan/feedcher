@@ -3,9 +3,11 @@
  * Copyright Mhd Sulhan (ms@kilabit.info) - 2014
  */
 
+define ("MAIN_PATH", dirname (realpath (__FILE__)) ."/");
+
 $classes_dir = array (
-	"lib/picoFeed/lib/"
-,	"lib/"
+	MAIN_PATH . "lib/picoFeed/lib/"
+,	MAIN_PATH . "lib/"
 );
 
 function class_autoload ($class_name)
