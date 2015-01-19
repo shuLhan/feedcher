@@ -2,9 +2,21 @@
  * Copyright Mhd Sulhan (ms@kilabit.info) 2014
  */
 
+CREATE TABLE images (
+	id INTEGER NOT NULL
+,	mime VARCHAR
+,	size INTEGER
+,	width INTEGER
+,	height INTEGER
+,	image BLOB
+,	description VARCHAR
+);
+
 CREATE TABLE feed_category (
 	id INTEGER NOT NULL,
 ,	name VARCHAR NOT NULL
+,	description VARCHAR NULL
+,	logo_id INTEGER
 );
 
 CREATE TABLE feed (
@@ -27,4 +39,5 @@ CREATE TABLE feed_item (
 ,	content BLOB NOT NULL
 ,	description VARCHAR
 ,	author VARCHAR
+,	cover_image INTEGER
 );

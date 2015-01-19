@@ -5,14 +5,19 @@
 
 require_once "../../json_begin.php";
 
-$q	= " select id, name
-		from	feed_category";
+$q	= " select	A.id
+		,		A.name
+		,		A.description
+		,		A.logo_id
+		from	feed_category	A
+";
 
 try {
 	$rs = $jaring->_db->execute ($q);
 
 	foreach ($rs as &$category) {
-		$category["link"] = "/category/?id=". $category["id"];
+		$category["link"] = "/feed/category/?id=". $category["id"];
+		$category["image"] = "/images/?id=". $category["logo_id"];
 	}
 
 	$jaring->_out->set (TRUE, $rs, count ($rs));
