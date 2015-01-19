@@ -63,7 +63,31 @@ class Feedcher extends Jaring
 		$this->_grabber->download ();
 		$this->_grabber->parse ();
 
-		$item->content = $this->_grabber->getContent ();
+		// ... and replace whitespace with single spaces.
+		$item->content = preg_replace ("!\s+!", " ", $this->_grabber->getFilteredContent ());
+	}
+
+	public function grab_first_image (&$item)
+	{
+		$item->cover_image = "";
+
+		// parse content, check for image, save it to db
+		$dom = DOMDocument::loadHTML ($item->content);
+
+		$imgs = $dom->getElementsByTagName ("img");
+
+		// no image found
+		if (! $imgs || count ($imgs) <= 0) {
+			return;
+		}
+
+		$img_src = $imgs[0]->getAttribute ("src");
+
+		if (empty ($img_src)) {
+			return;
+		}
+
+		$item->cover_image = $img_src;
 	}
 
 	public function save_item ($feed_md, $item)
@@ -83,6 +107,7 @@ class Feedcher extends Jaring
 
 		if ($rs[0]["num_items"] == 0) {
 			$this->grab_content ($item);
+			$this->grab_first_image ($item);
 
 			echo ">> save item   : $item->url".PHP_EOL;
 
@@ -95,7 +120,8 @@ class Feedcher extends Jaring
 					, description
 					, author
 					, content
-					) values (?, ?, ?, ?, ?, ?, ?, ?)";
+					, cover_image
+					) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			$s = $this->_db->execute ($q, array (
 						$item->id
@@ -106,6 +132,7 @@ class Feedcher extends Jaring
 					,	$item->description
 					,	$item->author
 					,	$item->content
+					,	$item->cover_image
 					)
 					, false);
 		}

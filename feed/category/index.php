@@ -14,6 +14,7 @@ $q	= " select	FI.id
 		,		FI.author
 		,		FI.description
 		,		FI.content
+		,		FI.cover_image
 		from	feed_category	FC
 		,		feed			FE
 		,		feed_item		FI
