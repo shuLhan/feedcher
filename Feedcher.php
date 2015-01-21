@@ -13,6 +13,7 @@ class Feedcher extends Jaring
 {
 	public $_reader = null;
 	public $_grabber = null;
+	public $_dom = null;
 	public $_max_try = 3;
 
 	public function __construct ($app_conf)
@@ -21,6 +22,7 @@ class Feedcher extends Jaring
 
 		$this->_reader = new Reader ();
 		$this->_grabber = new Grabber ('');
+		$this->_dom = new DOMDocument ();
 		$this->_max_try = 3;
 	}
 
@@ -59,25 +61,37 @@ class Feedcher extends Jaring
 	{
 		echo ">> grab content: $item->url".PHP_EOL;
 
-		$this->_grabber->setUrl ($item->url);
-		$this->_grabber->download ();
-		$this->_grabber->parse ();
+		$n_try = 3;
+		do {
+			$this->_grabber->setUrl ($item->url);
+			$this->_grabber->download ();
+			$this->_grabber->parse ();
 
-		// ... and replace whitespace with single spaces.
-		$item->content = preg_replace ("!\s+!", " ", $this->_grabber->getFilteredContent ());
+			// ... and replace whitespace with single spaces.
+			$item->content = preg_replace ("!\s+!", " ", $this->_grabber->getFilteredContent ());
+			$n_try--;
+		} while (empty ($item->content) && $n_try >= 0);
+
+		if ($n_try < 0) {
+			echo ">> failed".PHP_EOL;
+		}
 	}
 
 	public function grab_first_image (&$item)
 	{
 		$item->cover_image = "";
 
-		// parse content, check for image, save it to db
-		$dom = DOMDocument::loadHTML ($item->content);
+		if (empty ($item->content)) {
+			return;
+		}
 
-		$imgs = $dom->getElementsByTagName ("img");
+		// parse content, check for image, save it to db
+		$this->_dom->loadHTML ($item->content);
+
+		$imgs = $this->_dom->getElementsByTagName ("img");
 
 		// no image found
-		if (! $imgs || count ($imgs) <= 0) {
+		if (! $imgs || $imgs->length <= 0) {
 			return;
 		}
 
