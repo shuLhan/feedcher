@@ -15,5 +15,5 @@ $ git submodule update
 ## Running
 
 ```
-$ php Feedcher.php
+$ php Feedcher.php app.conf
 ```
